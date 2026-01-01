@@ -1,24 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { loginWithGoogle } from "../src/apis/loginWithGoogle";
 import DOMPurify from "dompurify";
-import { Cloud, Mail, Lock, AlertCircle } from "lucide-react";
+import { Cloud, Mail, Lock, AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "./components/lightswind/alert";
+import { useAuth } from "./context/AuthContext";
 
 const Login = () => {
+  const { refreshUser, evictionReason, clearEviction } = useAuth();
   const BASE_URL = import.meta.env.VITE_BASE_URL;
 
   const [formData, setFormData] = useState({
-    email: "varunmm0404@gmail.com",
-    password: "Varun@786",
+    email: "",
+    password: "",
   });
 
   const [serverError, setServerError] = useState("");
   const [notification, setNotification] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Clear eviction reason when user is on login page or navigates away
+  useEffect(() => {
+    if (evictionReason) {
+      setNotification("Logged out due to login on another device");
+      // Optional: clear it from context so it doesn't persist forever
+      setTimeout(() => clearEviction(), 100);
+    }
+  }, [evictionReason, clearEviction]);
 
   const loginWithGitHubHandler = () => {
     const CLIENT_ID = "Ov23lifBnGMie0EjK9Zz";
@@ -42,6 +54,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     try {
       const sanitizedBody = {
@@ -65,18 +78,22 @@ const Login = () => {
         setTimeout(() => {
           setNotification("");
         }, 5000);
+        setIsLoading(false);
         return;
       }
 
       const data = await response.json();
       if (data.error) {
         setServerError(data.error);
+        setIsLoading(false);
       } else {
+        await refreshUser();
         navigate("/");
       }
     } catch (error) {
       console.error("Error:", error);
       setServerError("Something went wrong. Please try again.");
+      setIsLoading(false);
     }
   };
 
@@ -177,12 +194,22 @@ const Login = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full py-3 px-4 rounded-lg font-semibold text-white transition-all duration-200 hover:shadow-medium hover:transform hover:-translate-y-0.5 active:translate-y-0"
+              disabled={isLoading}
+              className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-all duration-200 flex items-center justify-center gap-2 ${
+                isLoading ? "opacity-70 cursor-not-allowed" : "hover:shadow-medium hover:transform hover:-translate-y-0.5 active:translate-y-0"
+              }`}
               style={{ backgroundColor: '#66B2D6' }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = '#5aa0c0'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = '#66B2D6'}
+              onMouseEnter={(e) => !isLoading && (e.target.style.backgroundColor = '#5aa0c0')}
+              onMouseLeave={(e) => !isLoading && (e.target.style.backgroundColor = '#66B2D6')}
             >
-              Sign In
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Signing In...</span>
+                </>
+              ) : (
+                "Sign In"
+              )}
             </button>
           </form>
 
@@ -219,6 +246,7 @@ const Login = () => {
                     console.log(data);
                     return;
                   }
+                  await refreshUser();
                   navigate("/");
                 }}
                 shape="rectangular"
@@ -242,7 +270,7 @@ const Login = () => {
                 color: '#2C3E50'
               }}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#F0F8FF';
+                e.target.style.backgroundColor = '#fafdff';
                 e.target.style.borderColor = '#A7DDE9';
               }}
               onMouseLeave={(e) => {

@@ -6,7 +6,7 @@
   --color-mint-light: #E6FAF5;
   --color-cyan-light: #A7DDE9;
   --color-blue-medium: #66B2D6;
-  --color-alice-blue: #F0F8FF;
+  --color-alice-blue: #fafdff;
   --color-gray-blue: #D1DCE5;
   --color-blue-gray: #A3C5D9;
   
@@ -15,7 +15,7 @@
   --color-primary-hover: #5aa0c0;
   --color-primary-light: #A7DDE9;
   --color-secondary: #A3C5D9;
-  --color-background: #F0F8FF;
+  --color-background: #fafdff;
   --color-surface: #FFFFFF;
   --color-text-primary: #2C3E50;
   --color-text-secondary: #66B2D6;
@@ -106,6 +106,15 @@
     to { transform: translateX(-50%); }
   }
 
+  @keyframes caret-blink {
+    0%, 70%, 100% {
+      opacity: 1;
+    }
+    20%, 50% {
+      opacity: 0;
+    }
+  }
+
   /* Animation Utilities */
   --animate-fadeIn: fadeIn 0.3s ease-out;
   --animate-slideUp: slideUp 0.3s ease-out;
@@ -115,6 +124,7 @@
   --animate-spin: spin 1s linear infinite;
   --animate-marquee: marquee 20s linear infinite;
   --animate-progressIndeterminate: progressIndeterminate 1.5s ease-in-out infinite;
+  --animate-caret-blink: caret-blink 1.25s ease-out infinite;
 }
 
 /* Global Styles */

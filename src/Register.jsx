@@ -7,18 +7,21 @@ import DOMPurify from "dompurify";
 import { loginWithGoogle } from "../src/apis/loginWithGoogle";
 import { Alert, AlertTitle, AlertDescription } from "./components/lightswind/alert";
 import { CheckCircle } from "lucide-react";
+import { PasswordStrengthIndicator } from "./components/lightswind/password-strength-indicator";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "./components/lightswind/input-otp";
 
 const Register = () => {
   const BASE_URL = import.meta.env.VITE_BASE_URL;
 
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    name: "Anurag Singh",
-    email: "anuragprocodrr@gmail.com",
-    password: "abcd",
+    name: "",
+    email: "",
+    password: "",
   });
 
   const [serverError, setServerError] = useState("");
+  const [notification, setNotification] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
 
   // OTP state
@@ -115,8 +118,9 @@ const Register = () => {
       if (res.ok) {
         setOtpVerified(true);
         setOtpError("");
+        setNotification("Email verified successfully!");
         // Auto-submit after verification
-        setTimeout(() => handleFinalSubmit(true), 500);
+        setTimeout(() => handleFinalSubmit(true), 1500);
       } else {
         setOtpError(data.error || "Invalid or expired OTP.");
       }
@@ -159,7 +163,7 @@ const Register = () => {
         setOtpSent(false);
         setOtpVerified(false);
       } else {
-        setIsSuccess(true);
+        setNotification("Registration successful! Redirecting to login...");
         setTimeout(() => navigate("/login"), 2000);
       }
     } catch (error) {
@@ -172,17 +176,13 @@ const Register = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
 
-      {/* Success Modal */}
-      {isSuccess && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm p-4">
-          <Alert variant="success" withIcon className="max-w-sm bg-white shadow-2xl p-8 border-t-4 border-green-500">
-            <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center bg-green-50">
-                <CheckCircle className="w-10 h-10 text-green-500" />
-              </div>
-              <AlertTitle size="lg" className="text-slate-900 mb-2">Registration Successful!</AlertTitle>
-              <AlertDescription className="text-slate-500">Redirecting to login page...</AlertDescription>
-            </div>
+      {/* Notification Toast */}
+      {notification && (
+        <div className="fixed top-24 right-6 z-50 max-w-sm w-full md:w-[380px]">
+          <Alert variant="success" withIcon duration={4000} dismissible onDismiss={() => setNotification("")} className="bg-white/95 backdrop-blur-md shadow-2xl border-green-100">
+            <AlertDescription className="font-medium">
+              {notification}
+            </AlertDescription>
           </Alert>
         </div>
       )}
@@ -308,29 +308,16 @@ const Register = () => {
 
               {/* Password Field */}
               <div>
-                <label htmlFor="password" className="block text-sm font-semibold mb-2" style={{ color: '#0D2440' }}>
-                  Password
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg className="w-5 h-5" style={{ color: '#7BA4D0' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                  </div>
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="Create a password"
-                    required
-                    className="w-full pl-11 pr-4 py-3 border-2 rounded-lg transition-all duration-200 focus:outline-none"
-                    style={{ borderColor: '#E7F0FA', backgroundColor: '#FFFFFF' }}
-                    onFocus={(e) => e.target.style.borderColor = '#2E5E99'}
-                    onBlur={(e) => e.target.style.borderColor = '#E7F0FA'}
-                  />
-                </div>
+                <PasswordStrengthIndicator
+                  value={formData.password}
+                  onChange={(value) => setFormData((prev) => ({ ...prev, password: value }))}
+                  label="Password"
+                  placeholder="Create a password"
+                  showScore={true}
+                  showScoreNumber={false}
+                  showVisibilityToggle={true}
+                  className="w-full"
+                />
               </div>
 
               {/* Send Verification Code Button */}
@@ -435,25 +422,24 @@ const Register = () => {
 
               {/* OTP Input */}
               <div>
-                <label htmlFor="otp" className="block text-sm font-semibold mb-2" style={{ color: '#0D2440' }}>
+                <label htmlFor="otp" className="block text-sm font-semibold mb-6 text-center" style={{ color: '#0D2440' }}>
                   Verification Code
                 </label>
-                <input
-                  type="text"
-                  id="otp"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  placeholder="Enter 4-digit code"
-                  maxLength={4}
-                  className="w-full px-4 py-3 border-2 rounded-lg text-center text-2xl font-bold tracking-widest transition-all duration-200 focus:outline-none"
-                  style={{
-                    borderColor: otpError ? '#EF4444' : '#E7F0FA',
-                    backgroundColor: '#FFFFFF',
-                    color: '#0D2440'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = otpError ? '#EF4444' : '#2E5E99'}
-                  onBlur={(e) => !otpError && (e.target.style.borderColor = '#E7F0FA')}
-                />
+                
+                <div className="flex justify-center mb-6">
+                  <InputOTP 
+                    maxLength={4} 
+                    value={otp} 
+                    onChange={(value) => setOtp(value)}
+                  >
+                    <InputOTPGroup>
+                      <InputOTPSlot index={0} />
+                      <InputOTPSlot index={1} />
+                      <InputOTPSlot index={2} />
+                      <InputOTPSlot index={3} />
+                    </InputOTPGroup>
+                  </InputOTP>
+                </div>
 
                 {otpError && (
                   <Alert variant="destructive" withIcon className="mt-4 p-3 text-xs bg-red-50/50">

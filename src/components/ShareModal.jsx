@@ -437,15 +437,17 @@ function ShareModal({ resourceType, resourceId, resourceName, onClose }) {
             <div className="space-y-6">
               {loading ? (
                 <div className="flex justify-center py-8">
+                <div className="flex justify-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                </div>
                 </div>
               ) : (
                 <>
                   {/* Toggle Share Link */}
                   <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <FaGlobe className="w-5 h-5 text-blue-600" />
+                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                        <FaGlobe className="w-5 h-5 text-black" />
                       </div>
                       <div>
                         <h4 className="text-sm font-semibold text-gray-900">Share with link</h4>
@@ -476,22 +478,22 @@ function ShareModal({ resourceType, resourceId, resourceName, onClose }) {
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleUpdateLinkRole("viewer")}
-                            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all ${
-                              linkRole === "viewer"
-                                ? "border-blue-500 bg-blue-50 text-blue-700"
-                                : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
-                            }`}
+                              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all ${
+                                linkRole === "viewer"
+                                  ? "border-blue-500 bg-blue-50 text-blue-700"
+                                  : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                              }`}
                           >
                             <FaEye className="w-4 h-4" />
                             <span className="font-medium">Viewer</span>
                           </button>
                           <button
                             onClick={() => handleUpdateLinkRole("editor")}
-                            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all ${
-                              linkRole === "editor"
-                                ? "border-blue-500 bg-blue-50 text-blue-700"
-                                : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
-                            }`}
+                              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all ${
+                                linkRole === "editor"
+                                  ? "border-blue-500 bg-blue-50 text-blue-700"
+                                  : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                              }`}
                           >
                             <FaPencilAlt className="w-4 h-4" />
                             <span className="font-medium">Editor</span>
@@ -553,7 +555,7 @@ function ShareModal({ resourceType, resourceId, resourceName, onClose }) {
                       key={user.userId}
                       onClick={() => handleUserSelect(user)}
                       className={`flex items-center gap-3 p-3 cursor-pointer transition-colors ${
-                        isSelected ? "bg-blue-50" : "hover:bg-gray-50"
+                        isSelected ? "bg-gray-100" : "hover:bg-gray-50"
                       }`}
                     >
                       <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-500 rounded-full flex items-center justify-center text-white font-semibold">
