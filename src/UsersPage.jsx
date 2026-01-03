@@ -376,7 +376,6 @@ export default function UsersPage() {
       setErrorMessage("An error occurred while pausing subscription");
       setShowErrorToast(true);
       setTimeout(() => setShowErrorToast(false), 3000);
-    } finally {
       setProcessingAction(null);
     }
   };
@@ -423,7 +422,6 @@ export default function UsersPage() {
       setErrorMessage("An error occurred while resuming subscription");
       setShowErrorToast(true);
       setTimeout(() => setShowErrorToast(false), 3000);
-    } finally {
       setProcessingAction(null);
     }
   };
@@ -582,10 +580,11 @@ export default function UsersPage() {
                 <option>All Users</option>
               </select>
               <button 
-                onClick={fetchUsers}
-                className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-1"
+                onClick={() => !processingAction && fetchUsers()}
+                disabled={!!processingAction}
+                className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-1 disabled:opacity-50"
               >
-                <RefreshCw className="w-3 h-3" />
+                <RefreshCw className={`w-3 h-3 ${processingAction ? 'animate-spin' : ''}`} />
                 Refresh
               </button>
             </div>
@@ -634,8 +633,10 @@ export default function UsersPage() {
                         </span>
                         {canChangeRole(user) && (
                           <button 
-                            onClick={() => handleRoleChangeClick(user)}
-                            className="text-gray-400 hover:text-blue-600 transition-colors"
+                            onClick={() => !processingAction && handleRoleChangeClick(user)}
+                            disabled={!!processingAction}
+                            className={`text-gray-400 hover:text-blue-600 transition-colors ${processingAction ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title="Change Role"
                           >
                             <Pencil className="w-3 h-3" />
                           </button>
@@ -654,8 +655,9 @@ export default function UsersPage() {
                             <>
                               {user.subscriptionStatus === "paused" ? (
                                   <button
-                                    onClick={() => handleResumeSubscription(user)}
-                                    className="p-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all flex items-center gap-1 shadow-sm"
+                                    onClick={() => !processingAction && handleResumeSubscription(user)}
+                                    disabled={!!processingAction}
+                                    className={`p-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all flex items-center gap-1 shadow-sm ${processingAction ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     title="Resume Subscription"
                                   >
                                     <Play className="w-3 h-3" />
@@ -663,8 +665,9 @@ export default function UsersPage() {
                                   </button>
                               ) : (
                                   <button
-                                    onClick={() => handlePauseSubscription(user)}
-                                    className="p-1.5 bg-amber-500 text-white hover:bg-amber-600 rounded-lg transition-all flex items-center gap-1 shadow-sm"
+                                    onClick={() => !processingAction && handlePauseSubscription(user)}
+                                    disabled={!!processingAction}
+                                    className={`p-1.5 bg-amber-500 text-white hover:bg-amber-600 rounded-lg transition-all flex items-center gap-1 shadow-sm ${processingAction ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     title="Pause Subscription"
                                   >
                                     <Pause className="w-3 h-3" />
@@ -704,10 +707,10 @@ export default function UsersPage() {
                         {/* Logout */}
                         {canLogoutUser(user) && !user.isDeleted && (
                           <button
-                            onClick={() => handleLogoutClick(user)}
-                            disabled={!user.isLoggedIn}
+                            onClick={() => !processingAction && handleLogoutClick(user)}
+                            disabled={!user.isLoggedIn || !!processingAction}
                             className={`p-1.5 rounded-lg transition-colors ${
-                              user.isLoggedIn 
+                              user.isLoggedIn && !processingAction
                                 ? "bg-blue-600 text-white hover:bg-blue-700" 
                                 : "bg-gray-100 text-gray-400 cursor-not-allowed"
                             }`}
@@ -722,8 +725,8 @@ export default function UsersPage() {
                           <>
                             {!user.isDeleted ? (
                               <button
-                                onClick={() => handleDeleteClick(user)}
-                                disabled={user.email === currentUser.email}
+                                onClick={() => !processingAction && handleDeleteClick(user)}
+                                disabled={user.email === currentUser.email || !!processingAction}
                                 className="px-3 py-1.5 bg-gray-200 text-gray-700 text-xs font-medium rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
                               >
                                 Delete
@@ -731,11 +734,12 @@ export default function UsersPage() {
                             ) : (
                               canHardDeleteUser(user) && (
                                 <button
-                                  onClick={() => handleRecoverClick(user)}
-                                  className="px-3 py-1.5 bg-green-100 text-green-700 text-xs font-medium rounded-lg hover:bg-green-200 transition-colors"
-                                >
-                                  Recover
-                                </button>
+                                  onClick={() => !processingAction && handleRecoverClick(user)}
+                                  disabled={!!processingAction}
+                                  className="px-3 py-1.5 bg-green-100 text-green-700 text-xs font-medium rounded-lg hover:bg-green-200 transition-colors disabled:opacity-50"
+                                  >
+                                    Recover
+                                  </button>
                               )
                             )}
                           </>
@@ -744,8 +748,9 @@ export default function UsersPage() {
                         {/* View Files */}
                         {canViewFiles && !user.isDeleted && (
                           <button
-                            onClick={() => handleViewClick(user)}
-                            className="p-1.5 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                            onClick={() => !processingAction && handleViewClick(user)}
+                            disabled={!!processingAction}
+                            className={`p-1.5 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors ${processingAction ? 'opacity-50 cursor-not-allowed' : ''}`}
                             title="View Files"
                           >
                             <Eye className="w-4 h-4" />

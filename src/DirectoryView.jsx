@@ -969,7 +969,7 @@ function DirectoryView() {
                   }
                   fileInputRef.current.click();
                 }}
-                disabled={errorMessage === "Directory not found or you do not have access to it!"}
+                disabled={errorMessage === "Directory not found or you do not have access to it!" || isRenaming}
                 className="flex items-center gap-2 px-5 py-3 text-white rounded-lg transition-all duration-200 font-semibold text-sm shadow-md hover:shadow-lg hover:transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   backgroundColor: ["paused", "halted", "expired"].includes(user?.subscriptionStatus?.toLowerCase()) ? '#CBD5E0' : '#2E5E99',
@@ -999,7 +999,7 @@ function DirectoryView() {
                   }
                   setShowCreateDirModal(true);
                 }}
-                disabled={errorMessage === "Directory not found or you do not have access to it!"}
+                disabled={errorMessage === "Directory not found or you do not have access to it!" || isRenaming}
                 className="flex items-center gap-2 px-5 py-3 text-white rounded-lg transition-all duration-200 font-semibold text-sm shadow-md hover:shadow-lg hover:transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   backgroundColor: ["paused", "halted", "expired"].includes(user?.subscriptionStatus?.toLowerCase()) ? '#CBD5E0' : '#10B981',
@@ -1028,9 +1028,9 @@ function DirectoryView() {
               }}>
                 <ImportFromDrive
                   onFilesSelected={handleDriveFileImport}
-                  disabled={["paused", "halted", "expired"].includes(user?.subscriptionStatus?.toLowerCase())}
+                  disabled={["paused", "halted", "expired"].includes(user?.subscriptionStatus?.toLowerCase()) || isRenaming}
                   className={`flex items-center gap-2 px-5 py-3 text-gray-700 border border-gray-300 rounded-lg shadow-sm transition-all duration-200 font-semibold text-sm ${
-                    user?.subscriptionStatus?.toLowerCase() === "paused"
+                    user?.subscriptionStatus?.toLowerCase() === "paused" || isRenaming
                       ? "bg-gray-100 cursor-not-allowed opacity-50 grayscale pointer-events-none"
                       : "bg-white hover:bg-gray-50 hover:border-gray-400 hover:shadow-lg hover:scale-105"
                   }`}
@@ -1258,9 +1258,10 @@ function DirectoryView() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleContextMenu(e, item);
+                        if (!isRenaming) handleContextMenu(e, item);
                       }}
-                      className="p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                      disabled={isRenaming}
+                      className={`p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors ${isRenaming ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       <MoreVertical className="w-5 h-5" />
                     </button>
