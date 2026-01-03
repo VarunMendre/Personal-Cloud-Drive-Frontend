@@ -70,6 +70,7 @@ function DirectoryView() {
   const [renameId, setRenameId] = useState(null);
   const [renameValue, setRenameValue] = useState("");
   const [renameVersion, setRenameVersion] = useState(undefined);
+  const [isRenaming, setIsRenaming] = useState(false);
   const [extensionError, setExtensionError] = useState("");
   const [originalRenameValue, setOriginalRenameValue] = useState("");
 
@@ -712,6 +713,7 @@ function DirectoryView() {
   async function handleRenameSubmit(e) {
     e.preventDefault();
     setErrorMessage("");
+    setIsRenaming(true);
     try {
       const url =
         renameType === "file"
@@ -748,6 +750,8 @@ function DirectoryView() {
     } catch (error) {
       setErrorMessage(error.message);
       showToast(error.message, "error");
+    } finally {
+      setIsRenaming(false);
     }
   }
 
@@ -1185,6 +1189,7 @@ function DirectoryView() {
           onClose={() => setShowRenameModal(false)}
           onRenameSubmit={handleRenameSubmit}
           extensionError={extensionError}
+          isProcessing={isRenaming}
         />
       )}
 

@@ -12,7 +12,8 @@ import {
   Download,
   Trash2,
   AlertTriangle,
-  X
+  X,
+  Loader2
 } from "lucide-react";
 import DirectoryHeader, { BASE_URL } from "./components/DirectoryHeader";
 import { useAuth } from "./context/AuthContext";
@@ -35,6 +36,7 @@ export default function UserFilesPage() {
   const [extensionError, setExtensionError] = useState("");
   const [previewFileUrl, setPreviewFileUrl] = useState("");
   const [previewFileType, setPreviewFileType] = useState("");
+  const [isRenaming, setIsRenaming] = useState(false);
 
   const hasInitialized = useRef(false);
   const renameInputRef = useRef(null);
@@ -192,6 +194,7 @@ export default function UserFilesPage() {
 
   const confirmRenameFile = async () => {
     if (!selectedFile || !newFileName.trim()) return;
+    setIsRenaming(true);
     try {
       const response = await fetch(
         `${BASE_URL}/users/${userId}/files/${selectedFile._id || selectedFile.id}`,
@@ -208,6 +211,8 @@ export default function UserFilesPage() {
       }
     } catch (err) {
       console.error("Rename error:", err);
+    } finally {
+      setIsRenaming(false);
     }
   };
 
@@ -373,15 +378,23 @@ export default function UserFilesPage() {
                 <button
                   onClick={() => setShowRenameModal(false)}
                   className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  disabled={isRenaming}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmRenameFile}
-                  disabled={!newFileName.trim() || !!extensionError}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                  disabled={!newFileName.trim() || !!extensionError || isRenaming}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
                 >
-                  Save
+                  {isRenaming ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    "Save"
+                  )}
                 </button>
               </div>
             </div>

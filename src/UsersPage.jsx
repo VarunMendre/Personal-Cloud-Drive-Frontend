@@ -26,7 +26,8 @@ import {
   Mail,
   User,
   Shield,
-  Search
+  Search,
+  Loader2
 } from "lucide-react";
 import { Alert, AlertDescription } from "./components/lightswind/alert";
 
@@ -60,6 +61,7 @@ export default function UsersPage() {
   // Selection
   const [selectedUser, setSelectedUser] = useState(null);
   const [newRole, setNewRole] = useState("");
+  const [processingAction, setProcessingAction] = useState(null); // 'pause', 'resume', 'logout', 'delete', 'hardDelete', 'recover', 'roleChange'
 
   // Data
 
@@ -219,6 +221,7 @@ export default function UsersPage() {
 
   const confirmRoleChange = async () => {
     if (!selectedUser || !newRole) return;
+    setProcessingAction('roleChange');
     try {
       const response = await fetch(`${BASE_URL}/users/${selectedUser._id || selectedUser.id}/role`, {
         method: "PUT",
@@ -235,6 +238,8 @@ export default function UsersPage() {
       }
     } catch (err) {
       console.error("Role change error:", err);
+    } finally {
+      setProcessingAction(null);
     }
   };
 
@@ -246,6 +251,7 @@ export default function UsersPage() {
 
   const confirmLogout = async () => {
     if (!selectedUser) return;
+    setProcessingAction('logout');
     try {
       const response = await fetch(`${BASE_URL}/users/${selectedUser.id}/logout`, {
         method: "POST",
@@ -257,6 +263,8 @@ export default function UsersPage() {
       }
     } catch (err) {
       console.error("Logout error:", err);
+    } finally {
+      setProcessingAction(null);
     }
   };
 
@@ -267,6 +275,7 @@ export default function UsersPage() {
 
   const handleSoftDelete = async () => {
     if (!selectedUser) return;
+    setProcessingAction('delete');
     try {
       const response = await fetch(`${BASE_URL}/users/${selectedUser.id}`, {
         method: "DELETE",
@@ -278,11 +287,14 @@ export default function UsersPage() {
       }
     } catch (err) {
       console.error("Soft delete error:", err);
+    } finally {
+      setProcessingAction(null);
     }
   };
 
   const handleHardDelete = async () => {
     if (!selectedUser) return;
+    setProcessingAction('hardDelete');
     try {
       const response = await fetch(`${BASE_URL}/users/${selectedUser.id}/hard`, {
         method: "DELETE",
@@ -294,6 +306,8 @@ export default function UsersPage() {
       }
     } catch (err) {
       console.error("Hard delete error:", err);
+    } finally {
+      setProcessingAction(null);
     }
   };
 
@@ -304,6 +318,7 @@ export default function UsersPage() {
 
   const confirmRecover = async () => {
     if (!selectedUser) return;
+    setProcessingAction('recover');
     try {
       const response = await fetch(`${BASE_URL}/users/${selectedUser.id}/recover`, {
         method: "PUT",
@@ -315,6 +330,8 @@ export default function UsersPage() {
       }
     } catch (err) {
       console.error("Recover error:", err);
+    } finally {
+      setProcessingAction(null);
     }
   };
 
@@ -331,6 +348,7 @@ export default function UsersPage() {
 
   const confirmPause = async () => {
     if (!selectedUser) return;
+    setProcessingAction('pause');
     try {
       const response = await fetch(`${BASE_URL}/subscriptions/${selectedUser.razorpaySubscriptionId}/pause`, {
         method: "POST",
@@ -340,7 +358,10 @@ export default function UsersPage() {
         setShowPauseModal(false);
         setSuccessMessage("Subscription paused successfully");
         setShowSuccessToast(true);
-        setTimeout(() => setShowSuccessToast(false), 3000);
+        setTimeout(() => {
+          setShowSuccessToast(false);
+          window.location.reload();
+        }, 3000);
         fetchUsers();
       } else {
         const err = await response.json();
@@ -355,6 +376,8 @@ export default function UsersPage() {
       setErrorMessage("An error occurred while pausing subscription");
       setShowErrorToast(true);
       setTimeout(() => setShowErrorToast(false), 3000);
+    } finally {
+      setProcessingAction(null);
     }
   };
 
@@ -371,6 +394,7 @@ export default function UsersPage() {
 
   const confirmResume = async () => {
     if (!selectedUser) return;
+    setProcessingAction('resume');
     console.log("Resuming subscription for user:", selectedUser.name, "ID:", selectedUser.razorpaySubscriptionId);
     try {
       const response = await fetch(`${BASE_URL}/subscriptions/${selectedUser.razorpaySubscriptionId}/resume`, {
@@ -381,7 +405,10 @@ export default function UsersPage() {
         setShowResumeModal(false);
         setSuccessMessage("Subscription resumed successfully");
         setShowSuccessToast(true);
-        setTimeout(() => setShowSuccessToast(false), 3000);
+        setTimeout(() => {
+          setShowSuccessToast(false);
+          window.location.reload();
+        }, 3000);
         fetchUsers();
       } else {
         const err = await response.json();
@@ -396,6 +423,8 @@ export default function UsersPage() {
       setErrorMessage("An error occurred while resuming subscription");
       setShowErrorToast(true);
       setTimeout(() => setShowErrorToast(false), 3000);
+    } finally {
+      setProcessingAction(null);
     }
   };
 
@@ -775,16 +804,24 @@ export default function UsersPage() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowRoleModal(false)}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  disabled={processingAction === 'roleChange'}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmRoleChange}
-                  disabled={!newRole}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                  disabled={!newRole || processingAction === 'roleChange'}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
                 >
-                  Save Changes
+                  {processingAction === 'roleChange' ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    "Save Changes"
+                  )}
                 </button>
               </div>
             </div>
@@ -814,15 +851,24 @@ export default function UsersPage() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  disabled={processingAction === 'delete'}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSoftDelete}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+                  disabled={processingAction === 'delete'}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  Delete
+                  {processingAction === 'delete' ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Deleting...</span>
+                    </>
+                  ) : (
+                    "Delete"
+                  )}
                 </button>
                 {canHardDeleteUser(selectedUser) && (
                   <button
@@ -830,7 +876,8 @@ export default function UsersPage() {
                       setShowDeleteModal(false);
                       setShowHardDeleteConfirm(true);
                     }}
-                    className="flex-1 px-4 py-2.5 text-sm font-medium text-red-700 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
+                    disabled={processingAction === 'delete'}
+                    className="flex-1 px-4 py-2.5 text-sm font-medium text-red-700 bg-red-100 rounded-lg hover:bg-red-200 transition-colors disabled:opacity-50"
                   >
                     Permanent Delete
                   </button>
@@ -863,15 +910,71 @@ export default function UsersPage() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowHardDeleteConfirm(false)}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  disabled={processingAction === 'hardDelete'}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleHardDelete}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+                  disabled={processingAction === 'hardDelete'}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  Confirm Delete
+                  {processingAction === 'hardDelete' ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Deleting...</span>
+                    </>
+                  ) : (
+                    "Confirm Delete"
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Recover Modal */}
+      {showRecoverModal && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full animate-slideUp">
+            <div className="px-6 py-5 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                  <RotateCcw className="w-5 h-5 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Recover User</h3>
+                  <p className="text-sm text-gray-500 mt-0.5">Restore deleted user</p>
+                </div>
+              </div>
+            </div>
+            <div className="px-6 py-5">
+              <p className="text-sm text-gray-600 mb-5">
+                Are you sure you want to recover <strong className="text-gray-900">{selectedUser.name}</strong>?
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowRecoverModal(false)}
+                  disabled={processingAction === 'recover'}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmRecover}
+                  disabled={processingAction === 'recover'}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {processingAction === 'recover' ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Recovering...</span>
+                    </>
+                  ) : (
+                    "Recover"
+                  )}
                 </button>
               </div>
             </div>
@@ -900,15 +1003,24 @@ export default function UsersPage() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowLogoutModal(false)}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  disabled={processingAction === 'logout'}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmLogout}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+                  disabled={processingAction === 'logout'}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  Logout
+                  {processingAction === 'logout' ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Signing out...</span>
+                    </>
+                  ) : (
+                    "Logout"
+                  )}
                 </button>
               </div>
             </div>
@@ -946,15 +1058,24 @@ export default function UsersPage() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowPauseModal(false)}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  disabled={processingAction === 'pause'}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmPause}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-amber-600 rounded-lg hover:bg-amber-700 transition-colors"
+                  disabled={processingAction === 'pause'}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-amber-600 rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  Pause Subscription
+                  {processingAction === 'pause' ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Pausing...</span>
+                    </>
+                  ) : (
+                    "Pause Subscription"
+                  )}
                 </button>
               </div>
             </div>
@@ -992,15 +1113,24 @@ export default function UsersPage() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowResumeModal(false)}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  disabled={processingAction === 'resume'}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmResume}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors"
+                  disabled={processingAction === 'resume'}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  Resume Subscription
+                  {processingAction === 'resume' ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Resuming...</span>
+                    </>
+                  ) : (
+                    "Resume Subscription"
+                  )}
                 </button>
               </div>
             </div>
