@@ -892,7 +892,7 @@ function DirectoryView() {
         <div className="mx-6 mt-6 p-6 bg-yellow-50 border-2 border-yellow-400 rounded-xl shadow-md">
            <div className="flex flex-col sm:flex-row items-center gap-5 text-yellow-900 text-center sm:text-left">
              <div className="p-4 bg-yellow-100 rounded-2xl">
-               <FaInfoCircle className="w-10 h-10 text-yellow-600 animate-pulse" />
+                <Info className="w-10 h-10 text-yellow-600 animate-pulse" />
              </div>
              <div className="flex-1">
                <h2 className="text-2xl font-bold">Payment Failed</h2>
@@ -915,7 +915,7 @@ function DirectoryView() {
         <div className="mx-6 mt-6 p-6 bg-red-50 border-2 border-red-400 rounded-xl shadow-md">
            <div className="flex flex-col sm:flex-row items-center gap-5 text-red-900 text-center sm:text-left">
              <div className="p-4 bg-red-100 rounded-2xl">
-               <FaTimes className="w-10 h-10 text-red-600" />
+                <X className="w-10 h-10 text-red-600" />
              </div>
              <div className="flex-1">
                <h2 className="text-2xl font-bold">Access Halted</h2>
