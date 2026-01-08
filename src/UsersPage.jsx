@@ -74,33 +74,50 @@ export default function UsersPage() {
 
   async function fetchUsers() {
     try {
-      // Fetch basic user data
-      const usersResponse = await fetch(`${BASE_URL}/users`, { credentials: "include" });
-      
-      // Fetch permission data
-      let permissionData = { users: [] };
-      try {
-        const permResponse = await fetch(`${BASE_URL}/users/permission`, { credentials: "include" });
-        if (permResponse.ok) {
-          permissionData = await permResponse.json();
-        }
-      } catch (err) {
-        console.warn("Could not fetch permission data:", err);
-      }
+      // Fetch all required data in parallel to avoid "waterfall" loading
+      const [usersResponse, permResponse, meResponse] = await Promise.all([
+        fetch(`${BASE_URL}/users`, { credentials: "include" }),
+        fetch(`${BASE_URL}/users/permission`, { credentials: "include" }).catch(err => {
+          console.warn("Could not fetch permission data:", err);
+          return { ok: false };
+        }),
+        fetch(`${BASE_URL}/user`, { credentials: "include" }).catch(err => {
+          console.warn("Could not fetch my data:", err);
+          return { ok: false };
+        })
+      ]);
 
-      // Fetch current user data to ensure self-role is correct
-      let myData = null;
-      try {
-        const meResponse = await fetch(`${BASE_URL}/user`, { credentials: "include" });
-        if (meResponse.ok) {
-          myData = await meResponse.json();
-        }
-      } catch (err) {
-        console.warn("Could not fetch my data:", err);
+      // Check for auth errors on the main users request
+      if (usersResponse.status === 403) {
+        navigate("/");
+        return;
+      }
+      if (usersResponse.status === 401) {
+        navigate("/login");
+        return;
       }
 
       if (usersResponse.ok) {
         const usersData = await usersResponse.json();
+        
+        // Process optional data
+        let permissionData = { users: [] };
+        if (permResponse.ok) {
+          try {
+            permissionData = await permResponse.json();
+          } catch (err) {
+            console.warn("Error parsing permission data:", err);
+          }
+        }
+
+        let myData = null;
+        if (meResponse.ok) {
+          try {
+            myData = await meResponse.json();
+          } catch (err) {
+            console.warn("Error parsing my data:", err);
+          }
+        }
         
         // Create a map of roles from permission data
         const roleMap = {};
@@ -114,7 +131,6 @@ export default function UsersPage() {
         // Merge data
         const normalized = usersData.map((u) => {
           // 1. Check if this is ME
-          // Ensure we don't match undefined === undefined
           const isMe = myData && (
             (myData.email && u.email === myData.email) || 
             (myData._id && u._id && u._id === myData._id) || 
@@ -145,10 +161,6 @@ export default function UsersPage() {
         });
 
         setUsers(normalized);
-      } else if (usersResponse.status === 403) {
-        navigate("/");
-      } else if (usersResponse.status === 401) {
-        navigate("/login");
       }
     } catch (err) {
       console.error("Error fetching users:", err);
