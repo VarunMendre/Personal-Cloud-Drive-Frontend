@@ -505,7 +505,19 @@ export default function UsersPage() {
         <div className="bg-white rounded-lg shadow-sm p-3 mb-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <button
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 px-3 py-1.5 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+            className="flex items-center gap-2 px-3 py-1.5 bg-white border rounded-lg transition-colors text-sm"
+            style={{ 
+              color: '#2C3E50', 
+              borderColor: '#D1DCE5' 
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = '#fafdff';
+              e.target.style.borderColor = '#A7DDE9';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = '#FFFFFF';
+              e.target.style.borderColor = '#D1DCE5';
+            }}
           >
             <ArrowLeft className="w-3 h-3" />
             <span>Back to Home</span>
@@ -513,8 +525,8 @@ export default function UsersPage() {
 
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
-              <div className="text-sm font-medium text-gray-900">{currentUser.name}</div>
-              <div className="text-xs text-gray-500">{currentUser.email}</div>
+              <div className="text-sm font-medium" style={{ color: '#2C3E50' }}>{currentUser.name}</div>
+              <div className="text-xs" style={{ color: '#A3C5D9' }}>{currentUser.email}</div>
             </div>
             {currentUser.picture ? (
               <img
@@ -536,48 +548,48 @@ export default function UsersPage() {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {/* Total Users */}
-          <div className="bg-white rounded-xl shadow-sm p-4 flex items-center gap-3 border border-gray-100">
-            <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center text-white shadow-sm">
+          <div className="bg-white rounded-xl shadow-sm p-4 flex items-center gap-3 border" style={{ borderColor: '#D1DCE5' }}>
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white shadow-sm" style={{ backgroundColor: '#66B2D6' }}>
               <Users className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs font-medium text-gray-500">Total Users</p>
-              <p className="text-xl font-bold text-gray-900">{totalUsers}</p>
+              <p className="text-xs font-medium" style={{ color: '#A3C5D9' }}>Total Users</p>
+              <p className="text-xl font-bold" style={{ color: '#2C3E50' }}>{totalUsers}</p>
             </div>
           </div>
 
           {/* Active Users */}
-          <div className="bg-white rounded-xl shadow-sm p-4 flex items-center gap-3 border border-gray-100">
-            <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center text-white shadow-sm">
+          <div className="bg-white rounded-xl shadow-sm p-4 flex items-center gap-3 border" style={{ borderColor: '#D1DCE5' }}>
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white shadow-sm" style={{ backgroundColor: '#10B981' }}>
               <CheckCircle className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs font-medium text-gray-500">Active Users</p>
-              <p className="text-xl font-bold text-gray-900">{activeUsers}</p>
+              <p className="text-xs font-medium" style={{ color: '#A3C5D9' }}>Active Users</p>
+              <p className="text-xl font-bold" style={{ color: '#2C3E50' }}>{activeUsers}</p>
             </div>
           </div>
 
           {/* Online Users */}
-          <div className="bg-white rounded-xl shadow-sm p-4 flex items-center gap-3 border border-gray-100">
-            <div className="w-10 h-10 bg-yellow-500 rounded-lg flex items-center justify-center text-white shadow-sm">
+          <div className="bg-white rounded-xl shadow-sm p-4 flex items-center gap-3 border" style={{ borderColor: '#D1DCE5' }}>
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white shadow-sm" style={{ backgroundColor: '#F59E0B' }}>
               <Zap className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs font-medium text-gray-500">Online Users</p>
-              <p className="text-xl font-bold text-gray-900">
+              <p className="text-xs font-medium" style={{ color: '#A3C5D9' }}>Online Users</p>
+              <p className="text-xl font-bold" style={{ color: '#2C3E50' }}>
                 {users.filter(u => u.isLoggedIn && !u.isDeleted).length}
               </p>
             </div>
           </div>
 
           {/* Deleted Users */}
-          <div className="bg-white rounded-xl shadow-sm p-4 flex items-center gap-3 border border-gray-100">
-            <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center text-white shadow-sm">
+          <div className="bg-white rounded-xl shadow-sm p-4 flex items-center gap-3 border" style={{ borderColor: '#D1DCE5' }}>
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white shadow-sm" style={{ backgroundColor: '#EF4444' }}>
               <Trash2 className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs font-medium text-gray-500">Deleted Users</p>
-              <p className="text-xl font-bold text-gray-900">{deletedUsers}</p>
+              <p className="text-xs font-medium" style={{ color: '#A3C5D9' }}>Deleted Users</p>
+              <p className="text-xl font-bold" style={{ color: '#2C3E50' }}>{deletedUsers}</p>
             </div>
           </div>
         </div>
@@ -755,9 +767,14 @@ export default function UsersPage() {
                               disabled={!user.isLoggedIn || !!processingAction}
                               className={`p-1.5 rounded-lg transition-colors ${
                                 user.isLoggedIn && !processingAction
-                                  ? "bg-blue-600 text-white hover:bg-blue-700" 
+                                  ? "text-white" 
                                   : "bg-gray-100 text-gray-400 cursor-not-allowed"
                               }`}
+                              style={user.isLoggedIn && !processingAction ? {
+                                backgroundColor: '#66B2D6'
+                              } : undefined}
+                              onMouseEnter={(e) => user.isLoggedIn && !processingAction && (e.target.style.backgroundColor = '#5aa0c0')}
+                              onMouseLeave={(e) => user.isLoggedIn && !processingAction && (e.target.style.backgroundColor = '#66B2D6')}
                               title="Logout User"
                             >
                               <span className="text-xs px-2">Logout</span>
@@ -794,7 +811,13 @@ export default function UsersPage() {
                             <button
                               onClick={() => !processingAction && handleViewClick(user)}
                               disabled={!!processingAction}
-                              className={`p-1.5 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors ${processingAction ? 'opacity-50 cursor-not-allowed' : ''}`}
+                              className={`p-1.5 rounded-lg transition-colors ${processingAction ? 'opacity-50 cursor-not-allowed' : ''}`}
+                              style={{ 
+                                color: '#66B2D6',
+                                backgroundColor: '#E6FAF5'
+                              }}
+                              onMouseEnter={(e) => !processingAction && (e.target.style.backgroundColor = '#A7DDE9')}
+                              onMouseLeave={(e) => !processingAction && (e.target.style.backgroundColor = '#E6FAF5')}
                               title="View Files"
                             >
                               <Eye className="w-4 h-4" />
@@ -862,7 +885,10 @@ export default function UsersPage() {
                 <button
                   onClick={confirmRoleChange}
                   disabled={!newRole || processingAction === 'roleChange'}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-lg disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                  style={{ backgroundColor: '#66B2D6' }}
+                  onMouseEnter={(e) => !newRole && (e.target.style.backgroundColor = '#5aa0c0')}
+                  onMouseLeave={(e) => !newRole && (e.target.style.backgroundColor = '#66B2D6')}
                 >
                   {processingAction === 'roleChange' ? (
                     <>

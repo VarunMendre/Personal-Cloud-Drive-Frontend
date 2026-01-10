@@ -78,9 +78,9 @@ function FileSharingDashboard() {
       <div className="max-w-7xl mx-auto px-6 pt-24 pb-8">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">File Sharing Dashboard</h1>
-          <p className="text-gray-600">Manage your shared files and collaborations seamlessly</p>
-          <p className="text-xs text-gray-400 mt-1">Last updated: {new Date().toLocaleString()}</p>
+          <h1 className="text-3xl font-bold mb-2" style={{ color: '#2C3E50' }}>File Sharing Dashboard</h1>
+          <p style={{ color: '#2C3E50' }}>Manage your shared files and collaborations seamlessly</p>
+          <p className="text-xs mt-1" style={{ color: '#A3C5D9' }}>Last updated: {new Date().toLocaleString()}</p>
         </div>
 
         {/* Stats Cards */}
@@ -91,14 +91,16 @@ function FileSharingDashboard() {
             className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer group"
           >
             <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                <FaShare className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center transition-colors" style={{ backgroundColor: '#E6FAF5' }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#A7DDE9'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#E6FAF5'}>
+                <FaShare className="w-6 h-6" style={{ color: '#66B2D6' }} />
               </div>
               <span className="text-3xl font-bold text-gray-900">{stats.sharedWithMeCount}</span>
             </div>
             <h3 className="text-sm font-semibold text-gray-900 mb-1">Shared With Me</h3>
             <p className="text-xs text-gray-500 mb-3">Files others have shared</p>
-            <button className="text-xs text-blue-600 font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
+            <button className="text-xs font-medium flex items-center gap-1 group-hover:gap-2 transition-all" style={{ color: '#66B2D6' }}>
               View All Files
               <FaArrowRight className="w-3 h-3" />
             </button>
