@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DirectoryHeader from "./components/DirectoryHeader";
 import { useAuth } from "./context/AuthContext";
-import { FaShare, FaUsers, FaFileAlt, FaArrowRight, FaClock } from "react-icons/fa";
+import { FaShare, FaUsers, FaFileAlt, FaArrowRight } from "react-icons/fa";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -14,12 +14,9 @@ function FileSharingDashboard() {
     sharedByMeCount: 0,
     collaboratorsCount: 0,
   });
-  const [recentActivity, setRecentActivity] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchStats();
-    fetchRecentActivity();
   }, []);
 
   const fetchStats = async () => {
@@ -33,35 +30,7 @@ function FileSharingDashboard() {
       }
     } catch (err) {
       console.error("Error fetching stats:", err);
-    } finally {
-      setLoading(false);
     }
-  };
-
-  const fetchRecentActivity = async () => {
-    try {
-      const response = await fetch(`${BASE_URL}/share/dashboard/activity`, {
-        credentials: "include",
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setRecentActivity(data);
-      }
-    } catch (err) {
-      console.error("Error fetching activity:", err);
-    }
-  };
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInMs = now - date;
-    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-
-    if (diffInDays === 0) return "Today";
-    if (diffInDays === 1) return "Yesterday";
-    if (diffInDays < 7) return `${diffInDays} days ago`;
-    return date.toLocaleDateString();
   };
 
   return (
@@ -136,56 +105,6 @@ function FileSharingDashboard() {
             <h3 className="text-sm font-semibold text-gray-900 mb-1">Collaborators</h3>
             <p className="text-xs text-gray-500 mb-3">People you work with</p>
             <div className="text-xs text-gray-400">Active users</div>
-          </div>
-        </div>
-
-        {/* Recent Activity */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100">
-            <h2 className="text-lg font-bold text-gray-900">Recent Activity</h2>
-            <p className="text-sm text-gray-500">Your latest shared files and collaborations</p>
-          </div>
-          <div className="p-6">
-            {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <span className="ml-3 text-gray-700">Loading...</span>
-              </div>
-            ) : recentActivity.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <FaClock className="w-8 h-8 text-gray-400" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No recent activity</h3>
-                <p className="text-sm text-gray-500">
-                  Start sharing files to see your activity here
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {recentActivity.map((activity, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-4 p-4 hover:bg-gray-50 rounded-lg transition-colors"
-                  >
-                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <FaFileAlt className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {activity.fileName}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {activity.action} • {formatDate(activity.timestamp)}
-                      </p>
-                    </div>
-                    <button className="text-xs text-blue-600 font-medium hover:text-blue-700">
-                      Manage
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         </div>
 
